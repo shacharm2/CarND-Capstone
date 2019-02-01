@@ -1,41 +1,46 @@
 import os
-import keras
 import rospy
 import cv2
 from PIL import Image
-import cv2
-import tensorflow as tf
 import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense, Conv2D, Flatten, MaxPool2D
 from keras.preprocessing.image import ImageDataGenerator
-import keras.backend as K
 # from styx_msgs.msg import TrafficLight
-from tensorflow.python.platform import app, flags
-from yolo.yolo import YOLO
-from yolo.yolo3.utils import letterbox_image
 
-flags.DEFINE_bool('train_mode', False, 'run the script in training mode or not')
-flags.DEFINE_integer('epochs', 50, 'number of ephocs for the training')
-FLAGS = flags.FLAGS
+camera = True
+if camera:
+    import keras.backend as K
+    import tensorflow as tf
+    from keras.models import load_model
+    import keras
+    from tensorflow.python.platform import app, flags
+    from yolo.yolo import YOLO
+    from yolo.yolo3.utils import letterbox_image
+
+    flags.DEFINE_bool('train_mode', False, 'run the script in training mode or not')
+    flags.DEFINE_integer('epochs', 50, 'number of ephocs for the training')
+    FLAGS = flags.FLAGS
 
 
-# close all existing tensorflow session (if they exist)
-if 'session' in locals() and session is not None:
-    print('Close interactive session')
-    session.close()
+    # close all existing tensorflow session (if they exist)
+    if 'session' in locals() and session is not None:
+        print('Close interactive session')
+        session.close()
 
-config = tf.ConfigProto()
-config.gpu_options.allow_growth=True
-config.gpu_options.per_process_gpu_memory_fraction = 0.8
-sess = tf.Session(config=config)
-K.set_session(sess)
-GRAPH = tf.get_default_graph()
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth=True
+    config.gpu_options.per_process_gpu_memory_fraction = 0.8
+    sess = tf.Session(config=config)
+    K.set_session(sess)
+    GRAPH = tf.get_default_graph()
 
 class TLClassifier(object):
     def __init__(self, load_checkpoint=True, is_site=False):
         self.img_counter = 0 # for yolo debug
         self.is_site = is_site
+        rospy.loginfo("[tl_classifier] is site: %d", self.is_site) 
+
         if not is_site:
             rospy.loginfo("[tl_classifier] Loading simulator classification model") 
             self.model = self.simple_conv_net()
@@ -46,7 +51,8 @@ class TLClassifier(object):
         
         else:
             self.yolo = YOLO()
-            self.model = self.real_traffic_light_net()
+            self.real_traffic_light_net()
+            
             rospy.loginfo("[tl_classifier] Loading real life classification model") 
             # TODO - add trained real traffic light net that will work on carla
             checkpoint = None
@@ -74,17 +80,27 @@ class TLClassifier(object):
             return pred
 
         else:
+            cropped_image = None
             with GRAPH.as_default():
                 cropped_image = self.get_traffic_lights_crop_with_YOLO(image)
             if cropped_image is None:
                 return 4
-            # with GRAPH.as_default():
-            #     pred = self.model.predict(image)
-            # pred = np.argmax(pred)
-            # if pred == 3:
-            #     pred = 4
-            # return pred
-            return 4
+
+            cropped_image = cv2.resize(cropped_image, (224, 224))
+            cropped_image = np.expand_dims(cropped_image, axis=0)
+            with GRAPH.as_default():
+                pred = self.model.predict(cropped_image)
+            # for x in pred:
+            #     #rospy.loginfo("[tl_classifier] current traffic light classification: %d" % (pred)) 
+            #     rospy.loginfo("[tl_classifier] current traffic light classification: %s" % str(pred)) 
+            
+            pred = np.argmax(pred[0])
+            if pred == 3:
+                pred = 4
+
+            rospy.loginfo("[tl_classifier] current traffic light classification: %s" % str(pred)) 
+            return pred
+            # return 4
 
     def simple_conv_net(self):
         model = Sequential()
@@ -107,10 +123,12 @@ class TLClassifier(object):
     
     def real_traffic_light_net(self):
         # TODO - add the model that was trained on cropped images of real traffic lights
-        pass
+        rospy.loginfo("[tl_classifier] real_traffic_light_net") 
+        self.model = load_model('../../src/model_files/tl_classifier.hdf5')
+        rospy.loginfo("[tl_classifier] traffic light net loaded") 
 
     def train(self, epoch_num=FLAGS.epochs):
-        
+
         train_data_folder = '/home/udacity-ros/data/udacity-simulator-data/simulator-images/'
         val_data_folder = '/home/udacity-ros/data/udacity-simulator-data/simulator-images-val/'
         
@@ -152,7 +170,7 @@ class TLClassifier(object):
                 self.yolo.input_image_shape: [image.size[1], image.size[0]],
                 K.learning_phase(): 0
             })
-
+        cropped_image = None
         for i, c in reversed(list(enumerate(out_classes))):
             if c == 9:
                 box = out_boxes[i]
@@ -165,12 +183,12 @@ class TLClassifier(object):
                 rospy.loginfo("[tl_classifier] YOLO FOUND SOMETHING!!!!") 
                 
                 # for debug: save yolo cropped images
-                # temp_folder = '/home/udacity-ros/data/test/'
+                # temp_folder = '/home/udacity/test/'
                 # img_name = 'img%05d.jpg' % self.img_counter
                 # self.img_counter += 1
                 # save_path = temp_folder + img_name
                 # cv2.imwrite(save_path, cv2.cvtColor(cropped_image, cv2.COLOR_RGB2BGR))
-                # return cropped_image
+                return cropped_image
         
         rospy.loginfo("[tl_classifier] YOLO FOUND NOTHING!!!!") 
         return None

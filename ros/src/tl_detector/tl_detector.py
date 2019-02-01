@@ -19,6 +19,7 @@ class TLDetector(object):
     def __init__(self):
         rospy.init_node('tl_detector')
 
+        self.camera = False
         self.data_collection = False
         self.ground_truth = False
         self.pose = None
