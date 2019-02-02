@@ -7,8 +7,6 @@ from styx_msgs.msg import Lane, Waypoint
 from scipy.spatial import KDTree
 import math
 import numpy as np
-import keras
-import tensorflow as tf
 
 '''
 This node will publish waypoints from the car's current position to some `x` distance ahead.
