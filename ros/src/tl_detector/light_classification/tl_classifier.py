@@ -40,7 +40,7 @@ if is_camera:
     train_mode = FLAGS.train_mode
 
 class TLClassifier(object):
-    def __init__(self, load_checkpoint=True, is_site=False):
+    def __init__(self, load_checkpoint=True, is_site=False, model_image_size=[0,0]):
 
         self.img_counter = 0 # for yolo debug
         self.is_site = is_site
@@ -56,7 +56,8 @@ class TLClassifier(object):
             self.model._make_predict_function()
         
         elif self.is_camera:
-            self.yolo = YOLO()
+            self.yolo = YOLO(model_image_size=model_image_size)
+            # self.yolo = YOLO()
             self.real_traffic_light_net()
             
             rospy.loginfo("[tl_classifier] Loading real life classification model") 
@@ -162,7 +163,8 @@ class TLClassifier(object):
         returns the bounding box coordinates of a traffic light (left, top, right, bottom)S
         '''
         
-        # img = img[200:800,:, :]  # reduce the analysis area
+        img = img[:600,:, :]  # reduce the analysis area
+        # cv2.imwrite('/home/udacity/test/cropped_image.jpg', img)
         image = Image.fromarray(img)
         boxed_image = letterbox_image(image, tuple(reversed(self.yolo.model_image_size)))
         image_data = np.array(boxed_image, dtype='float32')
@@ -189,11 +191,11 @@ class TLClassifier(object):
                 rospy.loginfo("[tl_classifier] YOLO FOUND SOMETHING!!!!") 
                 
                 # for debug: save yolo cropped images
-                temp_folder = '/home/udacity/test/'
-                img_name = 'img%05d.jpg' % self.img_counter
-                self.img_counter += 1
-                save_path = temp_folder + img_name
-                cv2.imwrite(save_path, cv2.cvtColor(cropped_image, cv2.COLOR_RGB2BGR))
+                # temp_folder = '/home/udacity/test/'
+                # img_name = 'img%05d.jpg' % self.img_counter
+                # self.img_counter += 1
+                # save_path = temp_folder + img_name
+                # cv2.imwrite(save_path, cv2.cvtColor(cropped_image, cv2.COLOR_RGB2BGR))
                 return cropped_image
         
         rospy.loginfo("[tl_classifier] YOLO FOUND NOTHING!!!!") 

@@ -16,6 +16,7 @@ from PIL import Image, ImageFont, ImageDraw
 from yolo3.model import yolo_eval, yolo_body, tiny_yolo_body
 from yolo3.utils import letterbox_image
 import os
+import rospy
 # from keras.utils import multi_gpu_model
 
 class YOLO(object):
@@ -46,6 +47,8 @@ class YOLO(object):
         self.anchors = self._get_anchors()
         self.sess = K.get_session()
         self.boxes, self.scores, self.classes = self.generate()
+        rospy.loginfo("self._defaults %s", str(self._defaults))
+        #self._defaults["model_image_size"] = tuple(kwargs["model_image_size"])
 
     def _get_class(self):
         classes_path = os.path.expanduser(self.classes_path)

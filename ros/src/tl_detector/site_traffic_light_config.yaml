@@ -6,3 +6,5 @@ camera_info:
 stop_line_positions:
     - [8.0, 16.2]
 is_site: True
+model_image_size:
+    - [576, 1344]
