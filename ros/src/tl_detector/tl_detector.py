@@ -114,11 +114,11 @@ class TLDetector(object):
 
         if self.data_collection and self.ground_truth:
             car_wp_idx = self.get_closest_waypoint(self.pose.pose.position.x, self.pose.pose.position.y)
-            cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
             label = state
             if light_wp - car_wp_idx > 200:
                 label = 4
 
+            # cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
             # label = str(label)
             # img_name = label+'/img%05d.jpg' % self.img_counter[label]
             # save_path = self.images_path + img_name

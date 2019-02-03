@@ -18,17 +18,16 @@ class Controller(object):
 
         self.yaw_controller = YawController(wheel_base, steer_ratio, min_speed, max_lat_accel, max_steer_angle)
 
-        kp = 0.3
-        ki = 0.1
-        kd = 0
+        kp = 4
+        ki = 0.05
+        kd = 1
         mn = 0     # min throttle
-        mx = 0.2   # max throttle
+        mx = 0.5   # 0.2 max throttle
         self.throttle_controller = PID(kp, ki, kd, mn, mx)
 
         tau = 0.5 # 1/(2pi*tau) = cutoff frequency
         ts = 0.02 # sample time
         self.velocity_lpf = LowPassFilter(tau, ts)
-        
 
         self.vehicle_mass = kwargs["vehicle_mass"]
         self.fuel_capacity = kwargs["fuel_capacity"]
@@ -65,6 +64,10 @@ class Controller(object):
         sample_time = current_time - self.last_time
         self.last_time = current_time
         
+        self.throttle_controller.max = 0.5
+        if (current_vel < 0.3):
+            self.throttle_controller.max = 0.2
+
         throttle = self.throttle_controller.step(vel_error, sample_time)
         rospy.loginfo("<%f>", vel_error)
 
