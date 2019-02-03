@@ -49,7 +49,12 @@ class TLDetector(object):
         self.upcoming_red_light_pub = rospy.Publisher('/traffic_waypoint', Int32, queue_size=1)
 
         self.bridge = CvBridge()
-        self.light_classifier = TLClassifier(is_site=self.config['is_site'])
+        rospy.loginfo("model image size %s", str(self.config["model_image_size"][0]))
+        # self.light_classifier = TLClassifier(is_site=self.config['is_site'])
+        model_image_size = tuple(self.config['model_image_size'][0])
+        self.light_classifier = TLClassifier(is_site=self.config['is_site'], model_image_size=model_image_size)
+        # self.light_classifier = TLClassifier(is_site=self.config['is_site'], model_image_size=(576, 1344))
+
         self.listener = tf.TransformListener()
 
         self.state = TrafficLight.UNKNOWN
@@ -114,11 +119,11 @@ class TLDetector(object):
             if light_wp - car_wp_idx > 200:
                 label = 4
 
-            label = str(label)
-            img_name = label+'/img%05d.jpg' % self.img_counter[label]
-            save_path = self.images_path + img_name
-            cv2.imwrite(save_path, cv_image)
-            self.img_counter[label] += 1
+            # label = str(label)
+            # img_name = label+'/img%05d.jpg' % self.img_counter[label]
+            # save_path = self.images_path + img_name
+            # cv2.imwrite(save_path, cv_image)
+            # self.img_counter[label] += 1
             rospy.loginfo("[tl_detector]current wp = %d, next red light = %d w state %d. saved as %d" % (car_wp_idx, light_wp, state, self.img_counter[label])) 
             
         '''
@@ -189,7 +194,7 @@ class TLDetector(object):
 
         # List of positions that correspond to the line to stop in front of for a given intersection
         stop_line_positions = self.config['stop_line_positions']
-        if(self.pose):
+        if self.pose:
             car_wp_idx = self.get_closest_waypoint(self.pose.pose.position.x, self.pose.pose.position.y)
             if self.waypoints is not None:
                 diff = len(self.waypoints.waypoints)

@@ -38,7 +38,7 @@ class WaypointUpdater(object):
         self.obstacle_waypoint_pub = rospy.Publisher('obstacle_waypoint', Lane, queue_size=1)
 
         self.pose = None
-        # self.base_waypoints = None
+        self.base_waypoints = None
         self.base_lane = None
         self.waypoints_2d = None
         self.waypoints_tree = None
