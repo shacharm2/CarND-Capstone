@@ -6,6 +6,7 @@ from keras.models import Model, Sequential
 from keras.optimizers import Adam, SGD
 from keras.preprocessing.image import ImageDataGenerator
 from keras import regularizers
+from keras.utils import plot_model
 
 import cv2
 import ipdb
@@ -56,6 +57,7 @@ def build_model(num_classes, input_shape):
     model.add(Flatten())
     model.add(Dense(num_classes, activation='softmax'))
     model.compile(optimizer=Adam(lr=1e-4), loss='categorical_crossentropy', metrics=['accuracy'])
+    plot_model(model, to_file='model.png')
     return model
 
 
