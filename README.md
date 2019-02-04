@@ -80,9 +80,7 @@ The straight-forward classification approach that worked for us in the simulator
 
    
 
-    It was
-
-   Various database have been tried seperately and finally combined to a single training dataset:
+   Various databases have been tried, first seperately and finally combined to a single training dataset:
 
    * BDD-Nexar database by [Berkeley deep drive](https://bdd-data.berkeley.edu/)
      * An extractor for traffic lights and condition has been built to extract images
