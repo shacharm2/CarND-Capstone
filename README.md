@@ -21,6 +21,7 @@ This is the project repo for the final project of the Udacity Self-Driving Car N
    * Correctly classifing as "2" (under the following enumeration 0,1,2 - red, yellow, green)
 
 ![gif](./imgs/carla.gif) 
+![gif](./imgs/simulator-run.gif) 
 
 
 
@@ -44,10 +45,20 @@ The following architecture blocks comprise the project:
 
 ### Simulator classifier
 
+For traffic light classification in the simulator environment we tried a straight-forward approach: a convolutional neural network classifier which takes the entire frame as an input.
+
+* Classification data was collected from the simulator itself and divided into for classes (red, yellow, green, nothing)
+* We used 6 layers of convolutions with strides of 2X2 and max pooling between layers.
+* To reduce the computation load, we only activate the classifier, when a traffic light is nearby (information is taken from the map input) 
+
+this approach proved to be effective for the simulator environment and we did not need to add more complications to the system.
+
 ### Real world classifier
 
+The straight-forward classification approach that worked for us in the simulator, was not effective when applied in real-world scenarios. the data is much noisier, and it doesn't make sense to feed the entire frame into the classifier. We decided to do the traffic light classification in two steps:
+
 1. YOLO Detector 
-    TODO: Fill her up
+    For detection, we took a pre-trained "off the shelf" detector that was trained on COCO dataset. Our detector of choice was Tiny-Yolo-v3 [(code)](https://github.com/qqwweee/keras-yolo3), [(paper and model weights)](https://pjreddie.com/darknet/yolo/). We integrated Yolo into our code and used it as a pre-processor that cropped out the traffic signs from Carla's video camera frames so we can feed them in our classifier.
 
 2. Classifier 
    
@@ -92,6 +103,8 @@ The following architecture blocks comprise the project:
       * These were seperated to train and test, in order to include the expected traffic light and lighting conditions, in which the red light was seen in as yellow light. 
 
 ## Planning: Waypoint updater
+
+In order to make the drive along the waypoint smoother and with faster reactions, so we changed the queue size of the waypoint follower from 10 (default value) to 2. it allows faster car reaction when there are minor errors that need to be corrected or when traffic lights suddenly change.
 
 ## Control: DBW module
 
