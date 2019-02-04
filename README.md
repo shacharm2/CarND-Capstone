@@ -55,7 +55,10 @@ The following architecture blocks comprise the project:
 For traffic light classification in the simulator environment we tried a straight-forward approach: a convolutional neural network classifier which takes the entire frame as an input.
 
 * Classification data was collected from the simulator itself and divided into for classes (red, yellow, green, nothing)
-* We used 6 layers of convolutions with strides of 2X2 and max pooling between layers.
+* We used 7 layers of convolutions with strides of 2X2 on the first 3, and max pooling between layers.
+
+![](./imgs/simulator-model.png)
+
 * To reduce the computation load, we only activate the classifier, when a traffic light is nearby (information is taken from the map input) 
 
 this approach proved to be effective for the simulator environment and we did not need to add more complications to the system.
