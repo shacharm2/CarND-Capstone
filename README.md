@@ -16,11 +16,18 @@ This is the project repo for the final project of the Udacity Self-Driving Car N
 # Run scenarios
 
 
-1. Carla ROSbag
+## Carla (ROSBag) scenario 
    * Detection of traffic light only when trafflic light is within the image
    * Correctly classifing as "2" (under the following enumeration 0,1,2 - red, yellow, green)
 
+
+
 ![gif](./imgs/carla.gif) 
+
+
+## Simulator scenario 
+
+
 ![gif](./imgs/simulator-run.gif) 
 
 
