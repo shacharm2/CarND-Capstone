@@ -68,6 +68,7 @@ this approach proved to be effective for the simulator environment and we did no
 The straight-forward classification approach that worked for us in the simulator, was not effective when applied in real-world scenarios. the data is much noisier, and it doesn't make sense to feed the entire frame into the classifier. We decided to do the traffic light classification in two steps:
 
 1. YOLO Detector 
+
     For detection, we took a pre-trained "off the shelf" detector that was trained on COCO dataset. Our detector of choice was Tiny-Yolo-v3 [(code)](https://github.com/qqwweee/keras-yolo3), [(paper and model weights)](https://pjreddie.com/darknet/yolo/). We integrated Yolo into our code and used it as a pre-processor that cropped out the traffic signs from Carla's video camera frames so we can feed them in our classifier.
 
 2. Classifier 
