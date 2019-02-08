@@ -1,7 +1,6 @@
 """Miscellaneous utility functions."""
 
 from functools import reduce
-import ipdb
 
 from PIL import Image
 import numpy as np
@@ -20,7 +19,6 @@ def compose(*funcs):
 
 def letterbox_image(image, size):
     '''resize image with unchanged aspect ratio using padding'''
-    # ipdb.set_trace()
     iw, ih = image.size
     w, h = size
     scale = min(float(w)/iw, float(h)/ih)
